@@ -53,7 +53,6 @@ backend-engineering/
 12_rag_pipeline_AIsys/
 13_system_design/
 
-docs/
 ```
 
 Each module contains
