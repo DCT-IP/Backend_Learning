@@ -1,5 +1,5 @@
 /*
-Database: library_db
+Database: library_manage
 
 Purpose:
 This database models a simple Library Management System.
@@ -24,46 +24,55 @@ Design Decisions:
 - Borrow history is stored as events rather than counters.
 - Reviews are stored separately to avoid redundancy.
 */
-CREATE DATABASE library_manage;
-use library_manage;
+
+-- CREATE DATABASE library_manage;
+USE library_manage;
+
+-- Drop child tables first, then parent tables
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS BorrowRecords;
+DROP TABLE IF EXISTS Books;
+DROP TABLE IF EXISTS Users;
 
 CREATE TABLE Users(
-    U_ID int AUTO_INCREMENT PRIMARY KEY,
-    FirstName varchar(255) NOT NULL,
-    LastName varchar(255) NOT NULL ,
-    EMAIL varchar(255) NOT NULL UNIQUE
+    U_ID INT AUTO_INCREMENT PRIMARY KEY,
+    FirstName VARCHAR(255) NOT NULL,
+    LastName VARCHAR(255) NOT NULL,
+    Email VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE Books(
-    B_ID int AUTO_INCREMENT PRIMARY KEY,
+    B_ID INT AUTO_INCREMENT PRIMARY KEY,
     BookName VARCHAR(255) NOT NULL,
     Author VARCHAR(255) NOT NULL,
     Publisher VARCHAR(255) NOT NULL,
     Price DECIMAL(10,2) NOT NULL,
     Quantity INT NOT NULL,
-    CCONSTRAINT chk_price CHECK (Price >= 0.0),
+    CONSTRAINT chk_price CHECK (Price >= 0.0),
     CONSTRAINT chk_quantity CHECK (Quantity >= 0)
 );
 
 CREATE TABLE BorrowRecords(
-    borrow_ID int AUTO_INCREMENT PRIMARY KEY,
-    U_ID int NOT NULL,
-    B_ID int NOT NULL,
-    borrow_date date NOT NULL,
-    return_date date,
-    status VARCHAR(20) NOT NULL,
+    Borrow_ID INT AUTO_INCREMENT PRIMARY KEY,
+    U_ID INT NOT NULL,
+    B_ID INT NOT NULL,
+    Borrow_Date DATE NOT NULL,
+    Return_Date DATE,
+    Status VARCHAR(20) NOT NULL,
     FOREIGN KEY (U_ID) REFERENCES Users(U_ID),
     FOREIGN KEY (B_ID) REFERENCES Books(B_ID),
-    CONSTRAINT chk_status CHECK (status IN ('Borrowed', 'Returned', 'Overdue'))
+    CONSTRAINT chk_status
+        CHECK (Status IN ('Borrowed', 'Returned', 'Overdue'))
 );
 
 CREATE TABLE Reviews(
-    review_id int AUTO_INCREMENT PRIMARY KEY,
-    U_ID int NOT NULL,
-    B_ID int NOT NULL,
-    rating float,
-    comment TEXT,
+    Review_ID INT AUTO_INCREMENT PRIMARY KEY,
+    U_ID INT NOT NULL,
+    B_ID INT NOT NULL,
+    Rating FLOAT NOT NULL,
+    Comment TEXT,
     FOREIGN KEY (U_ID) REFERENCES Users(U_ID),
     FOREIGN KEY (B_ID) REFERENCES Books(B_ID),
-    CONSTRAINT chk_review_rating CHECK (rating BETWEEN 0.0 AND 5.0)
+    CONSTRAINT chk_review_rating
+        CHECK (Rating BETWEEN 0.0 AND 5.0)
 );

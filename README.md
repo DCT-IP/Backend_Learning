@@ -85,17 +85,6 @@ code/
 
 ---
 
-## Rules
-
-- Read official documentation first.
-- No copy-pasting code from tutorials.
-- Build everything independently.
-- Use AI only after attempting the implementation.
-- Every implementation should be explainable.
-- Every module ends with documentation.
-
----
-
 ## Documentation
 
 Every module answers the following questions.
