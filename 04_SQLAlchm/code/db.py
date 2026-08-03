@@ -16,12 +16,21 @@ DB_URL = (
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
-engine = create_engine(DB_URL, echo=True)
+engine = create_engine(DB_URL, echo=True) #create an engine to maintain a lowlevel connection pool to DB, echo allows us to do logging 
 
 SessionLocal = sessionmaker(
-    bind=engine,
-    autocommit=False,
-    autoflush=False
+    bind=engine,                       #the session to the DB
+    autocommit=False,                  #makes sure changes are not automatically committed to the DB
+    autoflush=False                    #explicit control over flushin
 )
+#session maker allows to generate individual session 
 
 Base = declarative_base()
+#to return a base class for our models to inherit from
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
