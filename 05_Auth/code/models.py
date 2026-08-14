@@ -8,7 +8,8 @@ class User(Base):
     FirstName = Column(String(255), nullable=False)
     LastName = Column(String(255), nullable=False)
     Email = Column(String(255), nullable=False, unique=True)
-
+    PasswordHash = Column(String(255), nullable=False)
+    
     borrow_records = relationship("BorrowRecord", back_populates="user")
     reviews = relationship("Review", back_populates="user")
 
