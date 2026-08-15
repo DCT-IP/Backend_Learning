@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 import models, schemas
+from security import hash_password
 
 def get_book(db: Session, book_id: int):
     return db.scalar(select(models.Book).where(models.Book.B_ID == book_id))
@@ -33,3 +34,25 @@ def delete_book(db: Session, book_id: int):
         db.delete(db_book)
         db.commit()
     return db_book
+
+def get_user_by_email(db: Session, email: str):
+    return db.scalar(
+        select(models.User).where(models.User.Email == email)
+    )
+
+
+def create_user(db: Session, user: schemas.UserCreate):
+    password_hash = hash_password(user.Password)
+
+    db_user = models.User(
+        FirstName=user.FirstName,
+        LastName=user.LastName,
+        Email=user.Email,
+        PasswordHash=password_hash
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    return db_user
