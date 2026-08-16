@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-
+from security import hash_password, verify_password, create_access_token
 import models, schemas, crud
 from db import engine, get_db
 
@@ -49,3 +49,28 @@ def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
         )
 
     return crud.create_user(db=db, user=user)
+
+@app.post("/auth/login")
+def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(db, user.Email)
+
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    if not verify_password(user.Password, db_user.PasswordHash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
+    access_token = create_access_token(
+        data={"sub": str(db_user.U_ID)}
+    )
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }

@@ -9,5 +9,6 @@ email-validator
 passlib[bcrypt]
 bcrypt
 pwdlib
+jwt
 python-jose[cryptography]
 python-multipart

@@ -14,6 +14,9 @@ class UserResponse(UserBase):
     U_ID: int
 
     model_config = ConfigDict(from_attributes=True)
+class UserLogin(BaseModel):
+    Email: EmailStr
+    Password: str
 
 class BookBase(BaseModel):
     BookName: str
