@@ -1,11 +1,57 @@
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import List
-from security import hash_password, verify_password, create_access_token
-import models, schemas, crud
+import jwt
+
+import models
+import schemas
+import crud
+
 from db import engine, get_db
 
+from security import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    Algo,
+    Key
+)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    try:
+        payload = jwt.decode(
+            token,
+            Key,
+            algorithms=[Algo]
+        )
 
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials"
+            )
+
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials"
+        )
+
+    user = crud.get_user_by_id(db, int(user_id))
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+
+    return user
 app = FastAPI(title="Library Management API")
 
 @app.post("/books", response_model=schemas.BookResponse, status_code=status.HTTP_201_CREATED)
@@ -13,7 +59,7 @@ def create_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
     return crud.create_book(db=db, book=book)
 
 @app.get("/books", response_model=List[schemas.BookResponse])
-def read_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     return crud.get_books(db=db, skip=skip, limit=limit)
 
 @app.get("/books/{book_id}", response_model=schemas.BookResponse)
@@ -41,36 +87,31 @@ def delete_book(book_id: int, db: Session = Depends(get_db)):
           status_code=status.HTTP_201_CREATED)
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing_user = crud.get_user_by_email(db, user.Email)
-
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered"
         )
-
     return crud.create_user(db=db, user=user)
 
 @app.post("/auth/login")
 def login_user(user: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, user.Email)
-
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-
     if not verify_password(user.Password, db_user.PasswordHash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-
     access_token = create_access_token(
         data={"sub": str(db_user.U_ID)}
     )
-
     return {
         "access_token": access_token,
         "token_type": "bearer"
     }
+

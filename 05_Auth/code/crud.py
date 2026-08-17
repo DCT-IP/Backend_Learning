@@ -40,19 +40,21 @@ def get_user_by_email(db: Session, email: str):
         select(models.User).where(models.User.Email == email)
     )
 
+def get_user_by_id(db: Session, user_id: int):
+    return db.scalar(
+        select(models.User).where(models.User.U_ID == user_id)
+    )
 
 def create_user(db: Session, user: schemas.UserCreate):
     password_hash = hash_password(user.Password)
-
     db_user = models.User(
         FirstName=user.FirstName,
         LastName=user.LastName,
         Email=user.Email,
         PasswordHash=password_hash
     )
-
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-
     return db_user
+
