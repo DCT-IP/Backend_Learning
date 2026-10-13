@@ -5,10 +5,6 @@ pymysql
 python-dotenv
 pydantic
 email-validator
-
-passlib[bcrypt]
 bcrypt
-pwdlib
-jwt
-python-jose[cryptography]
+PyJWT
 python-multipart

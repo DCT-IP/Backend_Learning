@@ -1,0 +1,14 @@
+Pre 06
+_____________________________________________
+| File             | Responsibility          |
+----------------------------------------------
+  main.py           App initializes and book end points
+  auth.py           Reg and login routes
+  dependencies.py   Current-user auth dependencies
+  security.py       Password hashing and JWT creation
+  crud.py           DB ops
+  models.py         SQLAlchm model 
+  schemas.py        Req/response validation
+  db.py             DB engine and sessions
+----------------------------------------------
+
