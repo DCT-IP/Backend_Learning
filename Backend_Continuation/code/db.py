@@ -7,17 +7,36 @@ import os
 load_dotenv()
 
 DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD"))
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
+
+required_settings = {
+    "DB_USER": DB_USER,
+    "DB_PASSWORD": DB_PASSWORD,
+    "DB_HOST": DB_HOST,
+    "DB_PORT": DB_PORT,
+    "DB_NAME": DB_NAME,
+}
+
+missing = [
+    name for name, value in required_settings.items()
+    if not value
+]
+
+if missing:
+    raise RuntimeError(
+        f"Missing database configuration: {', '.join(missing)}"
+    )
+
+DB_PASSWORD = quote_plus(DB_PASSWORD)
 
 DB_URL = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
     f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 )
 
-print(f"DB_URL: {DB_URL}")
 engine = create_engine(DB_URL, echo=True) #create an engine to maintain a lowlevel connection pool to DB, echo allows us to do logging 
 
 SessionLocal = sessionmaker(

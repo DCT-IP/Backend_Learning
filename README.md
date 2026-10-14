@@ -34,37 +34,6 @@ The emphasis is on understanding rather than completing projects quickly.
 
 ---
 
-## Repository Structure
-
-```
-backend-engineering/
-
-01_http_basics/
-02_rest_api/
-03_sql/
-04_sqlalchemy/
-05_authentication/
-06_project_structure/
-07_testing/
-08_docker/
-09_background_tasks/
-10_caching/
-11_websockets/
-12_rag_pipeline_AIsys/
-13_system_design/
-
-```
-
-Each module contains
-
-```
-README.md
-exercise.md
-code/
-```
-
----
-
 ## Modules
 
 | Module | Topic |

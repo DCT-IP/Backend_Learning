@@ -12,3 +12,9 @@ _____________________________________________
   db.py             DB engine and sessions
 ----------------------------------------------
 
+post 06
+The order is same however
+we made books.py
+we also  made sure main only initializes once 
+auth sticks to only /auth/login and /auth/registration
+books sticks to only anything wrt main
