@@ -1,0 +1,9 @@
+the point of adding testing is to automate the testing procedure so running a suite is easier and does not end up breaking auth, dependencies 
+software testing 
+ - to check if a program behaves as expected under conditions 
+ - basically here to check the endpoints and their behaviour
+Unit posting
+ - one small piece of logic in isolation
+ - password checks and auth checks 
+Integration Tests
+ - Checks whether multiple components work together correctly 
