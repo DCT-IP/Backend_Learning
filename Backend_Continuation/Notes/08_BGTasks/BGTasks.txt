@@ -1,0 +1,8 @@
+We will try to remove the the DB write  for simple event and sending non critical 
+notifs 
+so the new flow will be 
+    receive request - save book
+         |
+    Return an apt response 
+
+Will add a tasks.py for now

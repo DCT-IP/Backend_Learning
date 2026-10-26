@@ -1,0 +1,127 @@
+FastAPI BackgroundTasks schedules a function to run after the response
+has been sent. It is useful for relatively small tasks such as: -
+Sending a notification email. - Writing an audit log. - Triggering a
+lightweight follow-up action.
+
+BackgroundTasks is not a durable job queue. If work must survive process
+crashes, needs retries, or is long-running/heavy, consider a dedicated
+queue system such as Celery or another task worker.
+
+OPTIONAL FUTURE EXTENSION: SEND EMAIL
+
+When ready to practise real email delivery, extend this module in small
+steps.
+
+1.  Choose an email delivery method Option A — Gmail SMTP:
+
+    -   Sends real emails.
+    -   Requires a Gmail account and appropriate account security setup.
+    -   If available, use a Google App Password; do not use your normal
+        account password in application code.
+
+    Option B — Mailpit:
+
+    -   Captures test emails locally for inspection in a browser.
+    -   Useful for development because test messages do not go to real
+        recipients.
+
+2.  Store configuration in .env Example variable names (fill these
+    locally; never commit real values):
+
+        SMTP_HOST=smtp.gmail.com
+        SMTP_PORT=587
+        SMTP_USERNAME=your-sender-address@example.com
+        SMTP_PASSWORD=your-app-password
+        EMAIL_FROM=your-sender-address@example.com
+        EMAIL_TO=your-test-recipient@example.com
+
+    Notes:
+
+    -   These values are examples for Gmail SMTP; a local Mailpit setup
+        uses different host/port values.
+    -   Keep .env out of Git. Confirm it is listed in .gitignore.
+    -   Never paste credentials into source files, commits, screenshots,
+        or chats.
+    -   Ensure the application loads .env values through the
+        configuration approach already used by this project.
+
+3.  Add an email function to tasks.py
+
+    -   Read the SMTP settings from environment/configuration.
+    -   Build an email message with a clear subject and body.
+    -   Use Python’s standard email and smtplib libraries for a basic
+        SMTP implementation, or choose an email library if the project
+        needs it.
+    -   Connect securely using SMTP with STARTTLS where supported.
+    -   Authenticate using the configured credentials.
+    -   Send the message to the configured recipient.
+    -   Log success and catch/log expected SMTP errors without exposing
+        secrets.
+    -   Do not log passwords, app passwords, or other credentials.
+
+4.  Schedule the email from books.py
+
+    -   Keep the existing log_book_created task.
+    -   After crud.create_book succeeds, schedule the email task with
+        background_tasks.add_task(…).
+    -   Pass only the data the task needs, such as the new book ID and
+        title.
+    -   Do not schedule an email if the database creation fails.
+    -   Keep the endpoint’s response model and status code unchanged.
+
+5.  Test safely
+
+    -   First test with Mailpit or a controlled test recipient.
+
+    -   Confirm the API returns the expected response and the task is
+        executed.
+
+    -   Verify the message content, recipient, and subject.
+
+    -   Test missing configuration and SMTP failure handling.
+
+    -   Run the regression suite:
+
+        python -m pytest -v
+
+    -   Do not make tests depend on sending real emails. For automated
+        tests, mock the email-sending function or SMTP client.
+
+6.  Check security and reliability
+
+    -   Keep credentials in environment variables.
+    -   Avoid sending sensitive user or database information in email
+        content.
+    -   Do not assume that an HTTP 201 response proves the email was
+        delivered; the response confirms the book request succeeded,
+        while email delivery happens separately.
+    -   SMTP failure after the response may not be visible to the API
+        client. Logging is useful for this learning exercise; production
+        systems may need retries, monitoring, and a durable queue.
+
+SUGGESTED COMPLETION CHECKLIST
+
+[ ] Background task runs and logs the book ID/title. [ ] Existing tests
+pass. [ ] Email configuration is stored outside source code. [ ] Email
+function sends a message in a controlled environment. [ ] Email is
+scheduled only after successful book creation. [ ] SMTP failures are
+handled and logged safely. [ ] Automated tests mock email delivery. [ ]
+Existing regression tests still pass.
+
+REFERENCE
+
+FastAPI — Background Tasks:
+https://fastapi.tiangolo.com/tutorial/background-tasks/
+
+Google — Sign in with app passwords:
+https://support.google.com/accounts/answer/185833
+
+Python — smtplib: https://docs.python.org/3/library/smtplib.html
+
+Python — email package: https://docs.python.org/3/library/email.html
+
+NEXT STEP
+
+For now, this module can remain at the completed background-task/logging
+stage. Keep this file as a reference and implement SMTP email later if
+it becomes useful for the project or for learning.
