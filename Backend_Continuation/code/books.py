@@ -1,16 +1,38 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    status,
+)
 from sqlalchemy.orm import Session
 from typing import List
 import crud
 import schemas
 from db import get_db
 from dependencies import get_current_user
+from tasks import log_book_created
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
-@router.post("/", response_model=schemas.BookResponse, status_code=status.HTTP_201_CREATED)
-def create_book(book: schemas.BookCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
-    return crud.create_book(db=db, book=book)
+@router.post(
+    "/",
+    response_model=schemas.BookResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_book(
+    book: schemas.BookCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    db_book = crud.create_book(db=db, book=book)
+    background_tasks.add_task(
+        log_book_created,
+        db_book.B_ID,
+        db_book.BookName,
+    )
+    return db_book
 
 @router.get("/", response_model=List[schemas.BookResponse])
 def read_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
