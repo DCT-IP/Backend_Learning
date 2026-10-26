@@ -8,3 +8,5 @@ email-validator
 bcrypt
 PyJWT
 python-multipart
+pytest
+httpx
