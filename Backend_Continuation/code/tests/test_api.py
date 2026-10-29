@@ -145,3 +145,32 @@ def test_book_crud_lifecycle(client):
         headers=headers,
     )
     assert missing_response.status_code == 404
+
+def test_book_cache_invalidated_after_creation(client):
+    user = make_user()
+    registration = register_user(client, user)
+    assert registration.status_code == 201
+    headers = get_auth_headers(client, user)
+    first_response = client.get("/books/", headers=headers)
+    assert first_response.status_code == 200
+    book = {
+        "BookName": "Cache Test Book",
+        "Author": "Cache Author",
+        "Publisher": "Cache Publisher",
+        "Price": 299.00,
+        "Quantity": 3,
+    }
+    create_response = client.post(
+        "/books/",
+        json=book,
+        headers=headers,
+    )
+    assert create_response.status_code == 201, create_response.text
+    created_book_id = create_response.json()["B_ID"]
+    second_response = client.get("/books/", headers=headers)
+    assert second_response.status_code == 200
+    books = second_response.json()
+    assert any(
+        item["B_ID"] == created_book_id
+        for item in books
+    )

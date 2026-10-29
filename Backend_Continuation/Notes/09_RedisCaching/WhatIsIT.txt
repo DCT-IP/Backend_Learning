@@ -1,0 +1,25 @@
+Redis is an in memory data store commonly used for caching, counters, temporary data and coordination between application instances
+client -> API -> MySQL       --- this is the ucrrent method
+
+with caching, redis sits between the application and db logically
+client -> API -> redis caching(if hit: return cached data
+                               else: query sql)      ->        DB
+
+Some Concepts:
+Concept	                                   Meaning
+Key-value store	       Data is retrieved using a key, such as books:list:0:20.
+Cache hit	           The requested value exists in Redis and is usable.
+Cache miss	           The value is absent or expired, so the app fetches it from MySQL.
+TTL	Time to live       how long a key remains before expiration.
+Invalidation	       Removing or refreshing cached data after the underlying data changes.
+
+
+Method	                                           Short setup steps
+Memurai (native Windows)	        Download the Developer Edition → install as a Windows service → start service → test with memurai-cli.exe ping → expect PONG.
+Redis through WSL	                Enable WSL and Virtual Machine Platform → restart → install a Linux distribution → install Redis inside Linux → start Redis → run redis-cli ping.
+Docker	                            Install and start Docker Desktop → run docker run --name redis -p 6379:6379 -d redis → test with docker exec -it redis redis-cli ping.
+Hosted Redis	                    Create a database with a provider → copy connection credentials → store them in .env → connect with the Python Redis client.
+Python-only service	                Build a dictionary-backed cache → add TTL expiration → implement get, set, and delete → integrate with FastAPI.
+
+The first four options use an actual Redis-compatible server or Redis service. The fifth is our temporary learning implementation, not Redis itself.
+Due to limitation i will be relying on the 5th implementation

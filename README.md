@@ -45,12 +45,11 @@ The emphasis is on understanding rather than completing projects quickly.
 | 05 | Authentication |
 | 06 | Project Structure |
 | 07 | Testing |
-| 08 | Docker |
-| 09 | Background Tasks |
-| 10 | Redis & Caching |
-| 11 | WebSockets |
-| 12 | Retrieval-Augmented Generation (RAG) and AI Systems|
-| 13 | System Design |
+| 08 | Background Tasks |
+| 09 | Redis & Caching |
+| 10 | WebSockets |
+| 11 | Retrieval-Augmented Generation (RAG) and AI Systems|
+| 12 | System Design |
 
 ---
 
