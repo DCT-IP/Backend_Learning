@@ -7,12 +7,11 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 from typing import List
-
+from dependencies import get_current_user, rate_limit_book_list
 import crud
 import schemas
 from cache_service import cache
 from db import get_db
-from dependencies import get_current_user
 from tasks import log_book_created
 
 router = APIRouter(prefix="/books", tags=["Books"])
@@ -39,7 +38,8 @@ def create_book(
     return db_book
 
 
-@router.get("/", response_model=List[schemas.BookResponse])
+@router.get("/", response_model=List[schemas.BookResponse],
+            dependencies=[Depends(rate_limit_book_list)])
 def read_books(
     skip: int = 0,
     limit: int = 100,

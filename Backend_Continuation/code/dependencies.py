@@ -5,6 +5,12 @@ from sqlalchemy.orm import Session
 import crud
 from db import get_db
 from security import Algo, Key
+from fastapi import Request, HTTPException, status
+from rate_limiter import RateLimiter
+book_list_limiter = RateLimiter(
+    max_requests=5,
+    window_seconds=60,
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -37,3 +43,11 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+def rate_limit_book_list(request: Request):
+    client_id = request.client.host if request.client else "unknown"
+    if not book_list_limiter.is_allowed(client_id):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again later.",
+        )

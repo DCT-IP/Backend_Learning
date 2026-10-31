@@ -1,5 +1,6 @@
 from uuid import uuid4
 import pytest
+from dependencies import book_list_limiter
 
 
 def make_user():
@@ -173,4 +174,19 @@ def test_book_cache_invalidated_after_creation(client):
     assert any(
         item["B_ID"] == created_book_id
         for item in books
+    )
+
+
+def test_book_list_rate_limit(client):
+    user = make_user()
+    registration = register_user(client, user)
+    assert registration.status_code == 201
+    headers = get_auth_headers(client, user)
+    for _ in range(5):
+        response = client.get("/books/", headers=headers)
+        assert response.status_code == 200
+    response = client.get("/books/", headers=headers)
+    assert response.status_code == 429
+    assert response.json()["detail"] == (
+        "Too many requests. Please try again later."
     )

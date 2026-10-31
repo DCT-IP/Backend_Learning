@@ -2,17 +2,27 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 import db
 import models
 from main import app
+import pytest
+from dependencies import book_list_limiter
 
+
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter():
+    with book_list_limiter._lock:
+        book_list_limiter._requests.clear()
+    yield
+    with book_list_limiter._lock:
+        book_list_limiter._requests.clear()
 
 
 TEST_DATABASE_URL = db.DB_URL.rsplit("/", 1)[0] + "/library_test"
   
 test_engine = create_engine(TEST_DATABASE_URL)
-
 TestingSessionLocal = sessionmaker(
     bind=test_engine,
     autocommit=False,
